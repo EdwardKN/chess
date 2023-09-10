@@ -20,6 +20,9 @@ peer.on('connection', x => {
         if(data.winner){
             alert(data.winner + " wins!")
         }
+        if(data.lastMove){
+            lastMove = data.lastMove
+        }
     })
     x.on('open', () => {
         console.log('open called from peer', x.peer)

@@ -35,7 +35,12 @@ renderCanvas.addEventListener("mouseup", function (e) {
 var movingPiece = undefined;
 var colorToMove = "white";
 
-var localPlayer = "black"
+var localPlayer = "black";
+
+var lastMove = {
+    from:undefined,
+    tyo:undefined
+}
 
 const directionOffsets = [-8,8,-1,1,-9,9,-7,7]
 
@@ -189,8 +194,8 @@ class Square{
     draw(){
         c.fillStyle = this.hover ? (this.isLightSquare ? "lightgray" : "gray") : (this.isLightSquare ? "white" : "orange");
         c.fillRect(this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2,this.size,this.size);
-        c.fillStyle = movingPiece?.moves?.includes(this.i) ? "red" : "black";
-        c.globalAlpha = 0.3;
+        c.globalAlpha = 0.30;
+        c.fillStyle = (lastMove.from == this.i || lastMove.to == this.i) ?  (movingPiece?.moves?.includes(this.i) ? "orange" : "yellow") :  (movingPiece?.moves?.includes(this.i) ? "red" : "black");
         c.fillRect(this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2,this.size,this.size);
         c.globalAlpha = 1;
 
@@ -284,7 +289,9 @@ class Piece extends Square{
         }
         board.squares[this.i] = new Square(this.i);
         colorToMove = this.color == "white"? "black" : "white";
-        connection.send({colorToMove:colorToMove,moveFrom:this.i,moveTo:[i,this.type,this.color,false],winner:winner}) 
+        lastMove.from = this.i;
+        lastMove.to = i;
+        connection.send({colorToMove:colorToMove,moveFrom:this.i,moveTo:[i,(i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type,this.color,false],winner:winner,lastMove:lastMove}) 
         movingPiece = undefined;
         if(winner){
             alert("You win!")
