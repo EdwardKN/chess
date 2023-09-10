@@ -200,7 +200,7 @@ class Square{
 
         c.font = "10px Arial";
         c.fillStyle = "black";
-        c.fillText(this.i,this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2 + 20)
+        //c.fillText(this.i,this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2 + 20)
 
     };
     update(){
@@ -284,7 +284,7 @@ class Piece extends Square{
         }
         board.squares[this.i] = new Square(this.i);
         colorToMove = this.color == "white"? "black" : "white";
-        connection.send({colorToMove:colorToMove,moveFrom:this.i,moveTo:[i,this.type,this.color,false],winner:this.color}) 
+        connection.send({colorToMove:colorToMove,moveFrom:this.i,moveTo:[i,this.type,this.color,false],winner:winner}) 
         movingPiece = undefined;
         if(winner){
             alert("You win!")
