@@ -224,7 +224,7 @@ class Square {
 
         c.font = "10px Arial";
         c.fillStyle = "black";
-        c.fillText(this.i, this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2 + 20)
+        //c.fillText(this.i, this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2 + 20)
 
     };
     update() {
