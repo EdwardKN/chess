@@ -33,7 +33,9 @@ renderCanvas.addEventListener("mousedown", function (e) {
     mouse.down = true;
 });
 renderCanvas.addEventListener("mouseup", function (e) {
-    mouse.down = true;
+    if (movingPiece) {
+        mouse.down = true;
+    }
 });
 
 var movingPiece = undefined;
@@ -91,6 +93,8 @@ var images = {
 }
 function startLocal() {
     localPlayer = "white";
+    colorToMove = "white";
+    movingPiece = undefined;
     board = new Board();
     board.init();
     local = true;
@@ -193,7 +197,7 @@ class Board {
 class Square {
     constructor(i) {
         this.i = i;
-        let x = i % 8;
+        let x = (localPlayer == "white") ? (i % 8) : (7 - (i % 8));
         let y = (localPlayer == "white") ? Math.floor(i / 8) : (7 - Math.floor(i / 8));
         this.x = x;
         this.y = y;
@@ -201,6 +205,7 @@ class Square {
         this.piece = undefined;
         this.hover = false;
         this.size = 20;
+        this.moves = [-1]
 
         this.precomputedMoveData()
     }
@@ -235,8 +240,8 @@ class Square {
 
         let numNorth = (localPlayer == "white") ? this.y : 7 - this.y;
         let numSouth = (localPlayer == "black") ? this.y : 7 - this.y;
-        let numWest = this.x;
-        let numEast = 7 - this.x;
+        let numWest = (localPlayer == "white") ? this.x : 7 - this.x;
+        let numEast = (localPlayer == "black") ? this.x : 7 - this.x;
 
         this.numSquaresToEdge = [
             numNorth,
@@ -270,16 +275,19 @@ class Piece extends Square {
             if (!square) {
                 return;
             }
-            let i = square.x + ((localPlayer == "white") ? square.y * 8 : (56 - square.y * 8));
+            let i = ((localPlayer == "white") ? square.x : 7 - square.x) + ((localPlayer == "white") ? square.y * 8 : (56 - square.y * 8));
             this.placePiece(i);
+
         }
     }
 
     pickUpPiece() {
         if (this.color == colorToMove && colorToMove == (local ? colorToMove : localPlayer)) {
-            this.checkwin();
+            if (this.moves.length !== 0) {
+                this.checkwin();
 
-            movingPiece = this;
+                movingPiece = this;
+            }
         }
     }
     checkwin() {
@@ -301,6 +309,14 @@ class Piece extends Square {
         if (board.squares[i].type == 5) {
             winner = this.color;
         }
+        if (this.type == 5 && Math.abs(this.i - i) == 2) {
+            let dir = (i - this.i) / 2
+            for (let index = this.i; (dir == 1 ? (index < this.i + this.numSquaresToEdge[3] + 1) : (index >= this.i - this.numSquaresToEdge[3 + 1])); index += dir) {
+                if (board.squares[index].type == 1) {
+                    board.squares[index].placePiece(i - dir, true);
+                }
+            }
+        }
         board.squares[i] = new Square(i);
         if (i < 8 && this.type == 0 || i > 55 && this.type == 0) {
             board.squares[i] = new Piece(i, 4, this.color, false)
@@ -315,7 +331,6 @@ class Piece extends Square {
             connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], lastMove: lastMove })
             movingPiece = undefined;
             board.squares.filter(x => (x.color == colorToMove))[0].checkwin();
-            this.checkwin();
         }
 
     }
@@ -329,6 +344,9 @@ class Piece extends Square {
         }
         if (this.type == 2) {
             moves = this.getKnightMoves();
+        }
+        if (this.type == 5) {
+            moves = this.getCastlingMoves(moves);
         }
         return moves;
     }
@@ -390,6 +408,19 @@ class Piece extends Square {
         }
         return possibleMoves;
     }
+    getCastlingMoves(possibleMoves) {
+
+        for (let dir = -1; dir < 2; dir += 2) {
+            for (let index = this.i + 1 * dir; dir == 1 ? (index < this.i + this.numSquaresToEdge[3 + dir] * dir) : (index >= this.i + this.numSquaresToEdge[3 + dir] * dir); index += 1 * dir) {
+                if (board.squares[index]?.type == 1 && board.squares[index]?.firstMove) {
+                    possibleMoves.push(this.i + 2 * dir);
+                } else if (board.squares[index] instanceof Piece) {
+                    index += dir * 100
+                }
+            }
+        }
+        return possibleMoves;
+    }
     getRookMoves() {
         let possibleMoves = [];
         let dir = this.color == "black" ? 1 : -1;
@@ -430,5 +461,23 @@ class Piece extends Square {
         possibleMoves = possibleMoves.filter(e => (e <= 63 && e >= 0));
         return possibleMoves;
     };
+    tryCastling(i) {
+        if (this.firstMove && this.i == (i + 1) || this.firstMove && this.i == (i - 1)) {
+            let dir = i - this.i;
+            for (let index = this.i + 1 * dir; dir == 1 ? (index < this.i + this.numSquaresToEdge[3 + dir] * dir) : (index >= this.i + this.numSquaresToEdge[3 + dir] * dir); index += 1 * dir) {
+                if (board.squares[index] instanceof Piece) {
+                    if (board.squares[index].type == 1 && board.squares[index].firstMove) {
+                        board.squares[index].placePiece(this.i + 2 * dir, true);
+                        this.moves.push(this.i + 2 * dir);
+                        this.placePiece((this.i + 2 * dir));
+                    } else {
+                        this.placePiece(i);
+                    }
+                }
+            }
+        } else {
+            this.placePiece(i)
+        }
+    }
 };
 update();

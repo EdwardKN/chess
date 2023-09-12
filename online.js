@@ -7,6 +7,7 @@ var connection
 
 peer.on('connection', x => {
     x.on('data', data => {
+        console.log(data)
         if (data.colorToMove) {
             colorToMove = data.colorToMove
             board.squares.filter(x => x.color == colorToMove)[0].checkwin();
@@ -26,6 +27,7 @@ peer.on('connection', x => {
         }
     })
     x.on('open', () => {
+        console.log('open called from peer', x.peer)
         if (!connection) connection = peer.connect(x.peer)
 
         if (peerId < x.peer) {
@@ -38,5 +40,6 @@ peer.on('connection', x => {
 
 function connect() {
     const connectTo = document.getElementById('inputId').value
+    console.log('connecting to', connectTo)
     if (!connection) connection = peer.connect(connectTo)
 }
