@@ -1,34 +1,34 @@
 const peerId = Math.floor(Math.random() * 900000 + 100000)
 
-document.getElementById("thisId").innerHTML = "Id:"+peerId;
+document.getElementById("thisId").innerHTML = "Id:" + peerId;
 
 const peer = new Peer(peerId)
 var connection
 
 peer.on('connection', x => {
     x.on('data', data => {
-        console.log(data)
-        if(data.colorToMove){
+        if (data.colorToMove) {
             colorToMove = data.colorToMove
+            board.squares.filter(x => x.color == colorToMove)[0].checkwin();
+
         }
-        if(data.moveFrom){
+        if (data.moveFrom) {
             board.squares[data.moveFrom] = new Square(data.moveFrom);
         }
-        if(data.moveTo){
-            board.squares[data.moveTo[0]] = new Piece(data.moveTo[0],data.moveTo[1],data.moveTo[2],data.moveTo[3]);
+        if (data.moveTo) {
+            board.squares[data.moveTo[0]] = new Piece(data.moveTo[0], data.moveTo[1], data.moveTo[2], data.moveTo[3]);
         }
-        if(data.winner){
-            alert(data.winner + " wins!")
+        if (data.winner) {
+            alert(data.winner + " Won!")
         }
-        if(data.lastMove){
+        if (data.lastMove) {
             lastMove = data.lastMove
         }
     })
     x.on('open', () => {
-        console.log('open called from peer', x.peer)
-        if(!connection) connection = peer.connect(x.peer)
-        
-        if(peerId < x.peer){
+        if (!connection) connection = peer.connect(x.peer)
+
+        if (peerId < x.peer) {
             localPlayer = "white";
         };
         board = new Board();
@@ -36,8 +36,7 @@ peer.on('connection', x => {
     });
 });
 
-function connect(){
+function connect() {
     const connectTo = document.getElementById('inputId').value
-    console.log('connecting to', connectTo)
-    if(!connection) connection = peer.connect(connectTo)
+    if (!connection) connection = peer.connect(connectTo)
 }

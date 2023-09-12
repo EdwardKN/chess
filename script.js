@@ -11,9 +11,11 @@ window.onload = init;
 window.addEventListener("resize", fixCanvas);
 
 renderCanvas.addEventListener("mousemove", function (e) {
+    let oldDown = mouse.down;
     mouse = {
         x: e.offsetX / scale,
         y: e.offsetY / scale,
+        down: oldDown
     };
 });
 
@@ -31,7 +33,7 @@ renderCanvas.addEventListener("mousedown", function (e) {
     mouse.down = true;
 });
 renderCanvas.addEventListener("mouseup", function (e) {
-    mouse.down = false;
+    mouse.down = true;
 });
 
 var movingPiece = undefined;
@@ -275,10 +277,16 @@ class Piece extends Square {
 
     pickUpPiece() {
         if (this.color == colorToMove && colorToMove == (local ? colorToMove : localPlayer)) {
-            this.getLegalMoves();
+            this.checkwin();
 
             movingPiece = this;
         }
+    }
+    checkwin() {
+        if (this.getLegalMoves() == 0) {
+            connection?.send({ winner: (this.color == "black" ? "Black" : "White") })
+            alert((this.color == "black" ? "Black" : "White") + ' Won!');
+        };
     }
     async placePiece(i, fake) {
         if (i == this.i) {
@@ -290,7 +298,6 @@ class Piece extends Square {
         if (!fake) {
             this.firstMove = false;
         }
-        let winner;
         if (board.squares[i].type == 5) {
             winner = this.color;
         }
@@ -305,13 +312,11 @@ class Piece extends Square {
             colorToMove = this.color == "white" ? "black" : "white";
             lastMove.from = this.i;
             lastMove.to = i;
-            connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], winner: winner, lastMove: lastMove })
+            connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], lastMove: lastMove })
             movingPiece = undefined;
+            board.squares.filter(x => (x.color == colorToMove))[0].checkwin();
+            this.checkwin();
         }
-        if (winner) {
-            alert("You win!")
-            return true;
-        };
 
     }
     getMoves() {
@@ -328,6 +333,7 @@ class Piece extends Square {
         return moves;
     }
     getLegalMoves() {
+        let totalLegalMoves = 0;
         board.squares.filter(g => (g.color === this.color && g.color)).forEach(piece => {
             let pseudoLegalMoves = piece.getMoves();
 
@@ -357,7 +363,9 @@ class Piece extends Square {
                 board.squares[originalSpace] = oldPiece;
             })
             piece.moves = legalMoves;
+            totalLegalMoves += piece.moves.length;
         })
+        return totalLegalMoves;
     }
     getSlidingMoves() {
         let startDirIndex = this.type == 3 ? 4 : 0;
