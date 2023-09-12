@@ -104,7 +104,7 @@ function update(){
     c.font = "20px Arial";
     c.fillStyle = "black";
     c.textAlign = "center"
-    c.fillText(colorToMove == localPlayer ? "Your turn" : "Opponent's turn", canvas.width/2, 20)
+    c.fillText(colorToMove == localPlayer ? (!local ? "Your turn" : "White's turn") : (!local ? "Opponent's turn" : "Black's turn") , canvas.width/2, 20)
 
     movingPiece?.updateMoving();
 
@@ -339,7 +339,9 @@ class Piece extends Square{
     
             pseudoLegalMoves.forEach(async function(moveToVerify){
                 let old = board.squares[moveToVerify];
+                let oldPiece = piece;
                 board.squares[moveToVerify] = new Piece(moveToVerify,piece.type,piece.color,false);
+                board.squares[originalSpace] = new Square(originalSpace);
                 let inCheck = false;
                 
                 board.squares.filter(g => (g?.color !== piece.color && g?.color)).forEach(opponent => {
@@ -352,6 +354,7 @@ class Piece extends Square{
                     legalMoves.push(moveToVerify);
                 }
                 board.squares[moveToVerify] = old;
+                board.squares[originalSpace] = oldPiece;
             })
             piece.moves = legalMoves;   
         })
