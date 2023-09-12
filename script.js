@@ -23,6 +23,9 @@ var board = undefined;
 
 var local = false;
 
+var comp = false;
+var bothComp = false;
+
 var mouse = {
     x: undefined,
     y: undefined,
@@ -92,12 +95,30 @@ var images = {
     white: ["whitePiece/WhitePawn", "whitePiece/WhiteRook", "whitePiece/WhiteKnight", "whitePiece/WhiteBishop", "whitePiece/WhiteQueen", "whitePiece/WhiteKing"],
 }
 function startLocal() {
+    start();
+    local = true;
+}
+
+function startComp() {
+    start();
+    local = true;
+    comp = true;
+}
+
+function startCompVsComp() {
+    start();
+    local = true;
+    comp = true;
+    bothComp = true;
+    board.makeComputerMove();
+}
+
+function start() {
     localPlayer = "white";
     colorToMove = "white";
     movingPiece = undefined;
     board = new Board();
     board.init();
-    local = true;
 }
 
 function update() {
@@ -132,6 +153,10 @@ function detectCollision(x, y, w, h, x2, y2, w2, h2) {
     };
 };
 
+function randomIntFromRange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+};
+
 function drawimageFromSpriteSheet(x, y, w, h, frame, cropX, cropY, cropW, cropH, drawcanvas) {
     if (drawcanvas === undefined) {
         drawcanvas = c;
@@ -151,8 +176,16 @@ class Board {
     update() {
         this.draw();
         this.squares.forEach(e => e.update());
-
     };
+    async makeComputerMove() {
+        await new Promise(e => setTimeout(e, 100))
+        let computerSquares = this.squares.filter(e => (e instanceof Piece && e.color == colorToMove));
+        computerSquares.forEach(e => e.checkwin());
+        computerSquares = computerSquares.filter(e => e.moves.length > 0);
+        let random = randomIntFromRange(0, computerSquares.length - 1);
+        computerSquares[random].placePiece(computerSquares[random].moves[randomIntFromRange(0, computerSquares[random].moves.length - 1)]);
+
+    }
     init() {
         this.squares = [];
 
@@ -343,6 +376,11 @@ class Piece extends Square {
             connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], lastMove: lastMove })
             movingPiece = undefined;
             board.squares.filter(x => (x.color == colorToMove))[0].checkwin();
+            if (comp) {
+                if (colorToMove == "black" || bothComp) {
+                    board.makeComputerMove();
+                }
+            }
         }
 
     }
@@ -403,7 +441,7 @@ class Piece extends Square {
 
         let possibleMoves = [];
         for (let directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
-            for (let n = 0; n < (this.type != 5 ? this.numSquaresToEdge[directionIndex] : 1); n++) {
+            for (let n = 0; n < (this.type != 5 ? this.numSquaresToEdge[directionIndex] : Math.min(this.numSquaresToEdge[directionIndex], 1)); n++) {
 
                 let targetSquare = this.i + directionOffsets[directionIndex] * (n + 1);
                 let pieceOnTargetSquare = board.squares[targetSquare];
