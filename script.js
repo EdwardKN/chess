@@ -321,7 +321,6 @@ class Piece extends Square {
             }
         }
         if (this.type == 0) {
-            console.log(Math.abs(this.i - 1) - 8, i)
             if (board.squares[this.i - 1].lastWasFirstMoveAndMove2 && i == (Math.abs(this.i - 1) - 8)) {
                 board.squares[this.i - 1] = new Square(this.i - 1);
             }
