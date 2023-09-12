@@ -22,9 +22,9 @@ var board = undefined;
 var local = false;
 
 var mouse = {
-    x:undefined,
-    y:undefined,
-    down:false
+    x: undefined,
+    y: undefined,
+    down: false
 };
 
 renderCanvas.addEventListener("mousedown", function (e) {
@@ -40,11 +40,11 @@ var colorToMove = "white";
 var localPlayer = "black";
 
 var lastMove = {
-    from:undefined,
-    tyo:undefined
+    from: undefined,
+    tyo: undefined
 }
 
-const directionOffsets = [-8,8,-1,1,-9,9,-7,7]
+const directionOffsets = [-8, 8, -1, 1, -9, 9, -7, 7]
 
 
 
@@ -84,36 +84,36 @@ async function loadImages(imageObject) {
 }
 
 var images = {
-    black:["blackPiece/BlackPawn","blackPiece/BlackRook","blackPiece/BlackKnight","blackPiece/BlackBishop","blackPiece/BlackQueen","blackPiece/BlackKing"],
-    white:["whitePiece/WhitePawn","whitePiece/WhiteRook","whitePiece/WhiteKnight","whitePiece/WhiteBishop","whitePiece/WhiteQueen","whitePiece/WhiteKing"],
+    black: ["blackPiece/BlackPawn", "blackPiece/BlackRook", "blackPiece/BlackKnight", "blackPiece/BlackBishop", "blackPiece/BlackQueen", "blackPiece/BlackKing"],
+    white: ["whitePiece/WhitePawn", "whitePiece/WhiteRook", "whitePiece/WhiteKnight", "whitePiece/WhiteBishop", "whitePiece/WhiteQueen", "whitePiece/WhiteKing"],
 }
-function startLocal(){
+function startLocal() {
     localPlayer = "white";
     board = new Board();
     board.init();
     local = true;
 }
 
-function update(){
-    renderC.clearRect(0,0,renderCanvas.width,renderCanvas.height)
-    c.clearRect(0,0,canvas.width,canvas.height)
+function update() {
+    renderC.clearRect(0, 0, renderCanvas.width, renderCanvas.height)
+    c.clearRect(0, 0, canvas.width, canvas.height)
 
-    if(board){
+    if (board) {
         board.update();
     };
     c.font = "20px Arial";
     c.fillStyle = "black";
     c.textAlign = "center"
-    c.fillText(colorToMove == localPlayer ? (!local ? "Your turn" : "White's turn") : (!local ? "Opponent's turn" : "Black's turn") , canvas.width/2, 20)
+    c.fillText(colorToMove == localPlayer ? (!local ? "Your turn" : "White's turn") : (!local ? "Opponent's turn" : "Black's turn"), canvas.width / 2, 20)
 
     movingPiece?.updateMoving();
 
-    renderC.drawImage(canvas,0,0,renderCanvas.width,renderCanvas.height);
+    renderC.drawImage(canvas, 0, 0, renderCanvas.width, renderCanvas.height);
 
     requestAnimationFrame(update);
-}   
+}
 
-async function init(){
+async function init() {
     fixCanvas();
     await loadImages(images);
 };
@@ -130,69 +130,69 @@ function drawimageFromSpriteSheet(x, y, w, h, frame, cropX, cropY, cropW, cropH,
     if (drawcanvas === undefined) {
         drawcanvas = c;
     }
-    if(!frame){return}
+    if (!frame) { return }
     drawcanvas.drawImage(spritesheetImage, Math.floor(cropX + frame.frame.x), Math.floor(cropY + frame.frame.y), Math.floor(cropW), Math.floor(cropH), Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
 }
 
-class Board{
-    constructor(){
+class Board {
+    constructor() {
         this.squares = [];
     };
-    draw(){
+    draw() {
         c.fillStyle = "black";
-        c.fillRect(-4 + (canvas.width-20*8)/2,-4 + (canvas.height-20*8)/2,20*8 + 8,20*8 + 8)
+        c.fillRect(-4 + (canvas.width - 20 * 8) / 2, -4 + (canvas.height - 20 * 8) / 2, 20 * 8 + 8, 20 * 8 + 8)
     };
-    update(){
+    update() {
         this.draw();
         this.squares.forEach(e => e.update());
 
     };
-    init(){
+    init() {
         this.squares = [];
 
-        for(let i = 0; i < 64; i++){
+        for (let i = 0; i < 64; i++) {
             this.squares.push(new Square(i));
         };
 
-        for(let i = 8; i < 16; i++){
-            this.squares[i] = new Piece(i,0,"black")
+        for (let i = 8; i < 16; i++) {
+            this.squares[i] = new Piece(i, 0, "black")
         };
-        for(let i = 48; i < 56; i++){
-            this.squares[i] = new Piece(i,0,"white")
+        for (let i = 48; i < 56; i++) {
+            this.squares[i] = new Piece(i, 0, "white")
         };
-        this.squares[0] = new Piece(0,1,"black")
-        this.squares[7] = new Piece(7,1,"black")
+        this.squares[0] = new Piece(0, 1, "black")
+        this.squares[7] = new Piece(7, 1, "black")
 
-        this.squares[1] = new Piece(1,2,"black")
-        this.squares[6] = new Piece(6,2,"black")
+        this.squares[1] = new Piece(1, 2, "black")
+        this.squares[6] = new Piece(6, 2, "black")
 
-        this.squares[2] = new Piece(2,3,"black")
-        this.squares[5] = new Piece(5,3,"black")
+        this.squares[2] = new Piece(2, 3, "black")
+        this.squares[5] = new Piece(5, 3, "black")
 
-        this.squares[3] = new Piece(3,4,"black")
+        this.squares[3] = new Piece(3, 4, "black")
 
-        this.squares[4] = new Piece(4,5,"black")
+        this.squares[4] = new Piece(4, 5, "black")
 
-        this.squares[56] = new Piece(56,1,"white")
-        this.squares[63] = new Piece(63,1,"white")
+        this.squares[56] = new Piece(56, 1, "white")
+        this.squares[63] = new Piece(63, 1, "white")
 
-        this.squares[57] = new Piece(57,2,"white")
-        this.squares[62] = new Piece(62,2,"white")
+        this.squares[57] = new Piece(57, 2, "white")
+        this.squares[62] = new Piece(62, 2, "white")
 
-        this.squares[58] = new Piece(58,3,"white")
-        this.squares[61] = new Piece(61,3,"white")
+        this.squares[58] = new Piece(58, 3, "white")
+        this.squares[61] = new Piece(61, 3, "white")
 
-        this.squares[59] = new Piece(59,4,"white")
+        this.squares[59] = new Piece(59, 4, "white")
 
-        this.squares[60] = new Piece(60,5,"white")
+        this.squares[60] = new Piece(60, 5, "white")
     }
 };
 
-class Square{
-    constructor(i){
+class Square {
+    constructor(i) {
         this.i = i;
         let x = i % 8;
-        let y = (localPlayer == "white") ? Math.floor(i/8) : (7-Math.floor(i/8));
+        let y = (localPlayer == "white") ? Math.floor(i / 8) : (7 - Math.floor(i / 8));
         this.x = x;
         this.y = y;
         this.isLightSquare = (this.x + this.y) % 2 != 0;
@@ -202,15 +202,15 @@ class Square{
 
         this.precomputedMoveData()
     }
-    draw(){
+    draw() {
         c.fillStyle = this.hover ? (this.isLightSquare ? "lightgray" : "gray") : (this.isLightSquare ? "white" : "orange");
-        c.fillRect(this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2,this.size,this.size);
+        c.fillRect(this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2, this.size, this.size);
         c.globalAlpha = 0.30;
-        c.fillStyle = (lastMove.from == this.i || lastMove.to == this.i) ?  (movingPiece?.moves?.includes(this.i) ? "orange" : "yellow") :  (movingPiece?.moves?.includes(this.i) ? "red" : "black");
-        c.fillRect(this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2,this.size,this.size);
+        c.fillStyle = (lastMove.from == this.i || lastMove.to == this.i) ? (movingPiece?.moves?.includes(this.i) ? "orange" : "yellow") : (movingPiece?.moves?.includes(this.i) ? "red" : "black");
+        c.fillRect(this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2, this.size, this.size);
         c.globalAlpha = 1;
 
-        if(this.drawPiece){
+        if (this.drawPiece) {
             this.drawPiece();
         }
 
@@ -219,17 +219,17 @@ class Square{
         //c.fillText(this.i,this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2 + 20)
 
     };
-    update(){
-        this.hover = detectCollision(mouse.x,mouse.y,1,1,this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2,this.size,this.size);
-        
-        if(this.hover && mouse.down && this instanceof Piece && !movingPiece){
+    update() {
+        this.hover = detectCollision(mouse.x, mouse.y, 1, 1, this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2, this.size, this.size);
+
+        if (this.hover && mouse.down && this instanceof Piece && !movingPiece) {
             mouse.down = false;
             this.pickUpPiece();
         }
 
         this.draw();
     };
-    precomputedMoveData(){
+    precomputedMoveData() {
 
         let numNorth = (localPlayer == "white") ? this.y : 7 - this.y;
         let numSouth = (localPlayer == "black") ? this.y : 7 - this.y;
@@ -241,182 +241,182 @@ class Square{
             numSouth,
             numWest,
             numEast,
-            Math.min(numNorth,numWest),
-            Math.min(numSouth,numEast),
-            Math.min(numNorth,numEast),
-            Math.min(numSouth,numWest)
+            Math.min(numNorth, numWest),
+            Math.min(numSouth, numEast),
+            Math.min(numNorth, numEast),
+            Math.min(numSouth, numWest)
         ];
     }
 };
 
-class Piece extends Square{
-    constructor(i,type,color,firstMove){
+class Piece extends Square {
+    constructor(i, type, color, firstMove) {
         super(i);
         this.color = color;
         this.type = type;
         this.firstMove = firstMove == undefined ? true : false;
     };
-    drawPiece(){
-        if(movingPiece == this) return;
-        drawimageFromSpriteSheet(this.x*this.size+ 2 + (canvas.width-this.size*8)/2,this.y*this.size + 2 + (canvas.height-this.size*8)/2,16,16,this.color == "black" ? images.black[this.type] : images.white[this.type],0,0,16,16)
+    drawPiece() {
+        if (movingPiece == this) return;
+        drawimageFromSpriteSheet(this.x * this.size + 2 + (canvas.width - this.size * 8) / 2, this.y * this.size + 2 + (canvas.height - this.size * 8) / 2, 16, 16, this.color == "black" ? images.black[this.type] : images.white[this.type], 0, 0, 16, 16)
     };
-    updateMoving(){
-        drawimageFromSpriteSheet(mouse.x-8,mouse.y-8,16,16,this.color == "black" ? images.black[this.type] : images.white[this.type],0,0,16,16)
-        if(mouse.down){
+    updateMoving() {
+        drawimageFromSpriteSheet(mouse.x - 8, mouse.y - 8, 16, 16, this.color == "black" ? images.black[this.type] : images.white[this.type], 0, 0, 16, 16)
+        if (mouse.down) {
             mouse.down = false;
-            let square = board.squares.filter(e => {return e.hover})[0]
-            if(!square){
+            let square = board.squares.filter(e => { return e.hover })[0]
+            if (!square) {
                 return;
             }
-            let i = square.x + ((localPlayer == "white") ? square.y*8 : (56-square.y*8));
+            let i = square.x + ((localPlayer == "white") ? square.y * 8 : (56 - square.y * 8));
             this.placePiece(i);
         }
     }
 
-    pickUpPiece(){
-        if(this.color == colorToMove && colorToMove == (local ? colorToMove : localPlayer)){
+    pickUpPiece() {
+        if (this.color == colorToMove && colorToMove == (local ? colorToMove : localPlayer)) {
             this.getLegalMoves();
 
             movingPiece = this;
         }
     }
-    async placePiece(i,fake){
-        if(i == this.i){
+    async placePiece(i, fake) {
+        if (i == this.i) {
             movingPiece = undefined;
         }
-        if(!this?.moves?.includes(i)){
+        if (!this?.moves?.includes(i)) {
             return;
         }
-        if(!fake){
+        if (!fake) {
             this.firstMove = false;
         }
         let winner;
-        if(board.squares[i].type == 5){
+        if (board.squares[i].type == 5) {
             winner = this.color;
         }
         board.squares[i] = new Square(i);
-        if(i < 8 && this.type == 0 || i > 55 && this.type == 0){
-            board.squares[i] = new Piece(i,4,this.color,false)   
-        }else{
-            board.squares[i] = new Piece(i,this.type,this.color,false)   
+        if (i < 8 && this.type == 0 || i > 55 && this.type == 0) {
+            board.squares[i] = new Piece(i, 4, this.color, false)
+        } else {
+            board.squares[i] = new Piece(i, this.type, this.color, false)
         }
         board.squares[this.i] = new Square(this.i);
-        if(!fake){
-            colorToMove = this.color == "white"? "black" : "white";
+        if (!fake) {
+            colorToMove = this.color == "white" ? "black" : "white";
             lastMove.from = this.i;
             lastMove.to = i;
-            connection?.send({colorToMove:colorToMove,moveFrom:this.i,moveTo:[i,(i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type,this.color,false],winner:winner,lastMove:lastMove}) 
+            connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], winner: winner, lastMove: lastMove })
             movingPiece = undefined;
         }
-        if(winner){
+        if (winner) {
             alert("You win!")
             return true;
         };
 
     }
-    getMoves(){
+    getMoves() {
         let moves = [];
-        if(this.type == 1 || this.type == 3 || this.type == 4 || this.type == 5){
+        if (this.type == 1 || this.type == 3 || this.type == 4 || this.type == 5) {
             moves = this.getSlidingMoves();
         }
-        if(this.type == 0){
+        if (this.type == 0) {
             moves = this.getRookMoves();
         }
-        if(this.type == 2){
+        if (this.type == 2) {
             moves = this.getKnightMoves();
         }
         return moves;
     }
-    getLegalMoves(){
-        board.squares.filter(g => (g.color === this.color && g.color)).forEach(piece =>{
+    getLegalMoves() {
+        board.squares.filter(g => (g.color === this.color && g.color)).forEach(piece => {
             let pseudoLegalMoves = piece.getMoves();
 
             let legalMoves = [];
-    
+
             let originalSpace = piece.i;
 
             pseudoLegalMoves = pseudoLegalMoves.filter(e => !(e instanceof Piece))
-    
-            pseudoLegalMoves.forEach(async function(moveToVerify){
+
+            pseudoLegalMoves.forEach(async function (moveToVerify) {
                 let old = board.squares[moveToVerify];
                 let oldPiece = piece;
-                board.squares[moveToVerify] = new Piece(moveToVerify,piece.type,piece.color,false);
+                board.squares[moveToVerify] = new Piece(moveToVerify, piece.type, piece.color, false);
                 board.squares[originalSpace] = new Square(originalSpace);
                 let inCheck = false;
-                
+
                 board.squares.filter(g => (g?.color !== piece.color && g?.color)).forEach(opponent => {
                     opponent.moves = opponent.getMoves();
-                    if(opponent.moves.includes(board.squares.filter(g => (g.color == piece.color && g.type == 5))[0].i)){
+                    if (opponent.moves.includes(board.squares.filter(g => (g.color == piece.color && g.type == 5))[0].i)) {
                         inCheck = true;
                     }
                 })
-                if(!inCheck){
+                if (!inCheck) {
                     legalMoves.push(moveToVerify);
                 }
                 board.squares[moveToVerify] = old;
                 board.squares[originalSpace] = oldPiece;
             })
-            piece.moves = legalMoves;   
+            piece.moves = legalMoves;
         })
     }
-    getSlidingMoves(){
+    getSlidingMoves() {
         let startDirIndex = this.type == 3 ? 4 : 0;
         let endDirIndex = this.type == 1 ? 4 : 8;
 
         let possibleMoves = [];
-        for(let directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++){
-            for(let n = 0; n < (this.type != 5 ? this.numSquaresToEdge[directionIndex] : 1); n++){
+        for (let directionIndex = startDirIndex; directionIndex < endDirIndex; directionIndex++) {
+            for (let n = 0; n < (this.type != 5 ? this.numSquaresToEdge[directionIndex] : 1); n++) {
 
-                let targetSquare = this.i + directionOffsets[directionIndex] * (n+1);
+                let targetSquare = this.i + directionOffsets[directionIndex] * (n + 1);
                 let pieceOnTargetSquare = board.squares[targetSquare];
 
-                if(pieceOnTargetSquare?.color == this.color || targetSquare > 63 || targetSquare < 0){
+                if (pieceOnTargetSquare?.color == this.color || targetSquare > 63 || targetSquare < 0) {
                     break;
                 }
                 possibleMoves.push(targetSquare);
 
-                if(pieceOnTargetSquare?.color !== this.color && pieceOnTargetSquare instanceof Piece){
+                if (pieceOnTargetSquare?.color !== this.color && pieceOnTargetSquare instanceof Piece) {
                     break;
                 }
             }
         }
         return possibleMoves;
     }
-    getRookMoves(){
+    getRookMoves() {
         let possibleMoves = [];
         let dir = this.color == "black" ? 1 : -1;
-        if(!(board.squares[this.i + 8*dir] instanceof Piece)){
-            if(this.firstMove){
-                possibleMoves.push(this.i + 8*dir);
-                possibleMoves.push(this.i + 16*dir);
-            }else{
-                possibleMoves.push(this.i + 8*dir);
+        if (!(board.squares[this.i + 8 * dir] instanceof Piece)) {
+            if (this.firstMove) {
+                possibleMoves.push(this.i + 8 * dir);
+                possibleMoves.push(this.i + 16 * dir);
+            } else {
+                possibleMoves.push(this.i + 8 * dir);
             }
         }
-        
-        if(board.squares[this.i + 7*dir]?.color !== this.color && board.squares[this.i + 7*dir] instanceof Piece){
-            possibleMoves.push(this.i + 7*dir);
+
+        if (board.squares[this.i + 7 * dir]?.color !== this.color && board.squares[this.i + 7 * dir] instanceof Piece) {
+            possibleMoves.push(this.i + 7 * dir);
         }
-        if(board.squares[this.i + 9*dir]?.color !== this.color && board.squares[this.i + 9*dir] instanceof Piece){
-            possibleMoves.push(this.i + 9*dir);
+        if (board.squares[this.i + 9 * dir]?.color !== this.color && board.squares[this.i + 9 * dir] instanceof Piece) {
+            possibleMoves.push(this.i + 9 * dir);
         }
-        
+
         return possibleMoves;
     }
-    getKnightMoves(){
+    getKnightMoves() {
         let possibleMoves = [];
-        for(let dir = -1; dir<2; dir+=2){
-            if(board.squares[this.i - 17*dir]?.color !== this.color && (dir == 1 ? this.i%8 !== 0 : this.i%8 < 7)){
-                possibleMoves.push(this.i - 17*dir);
+        for (let dir = -1; dir < 2; dir += 2) {
+            if (board.squares[this.i - 17 * dir]?.color !== this.color && (dir == 1 ? this.i % 8 !== 0 : this.i % 8 < 7)) {
+                possibleMoves.push(this.i - 17 * dir);
             }
-            if(board.squares[this.i - 15*dir]?.color !== this.color && (dir == 1 ? this.i%8 < 7 : this.i%8 !== 0)){
-                possibleMoves.push(this.i - 15*dir);
+            if (board.squares[this.i - 15 * dir]?.color !== this.color && (dir == 1 ? this.i % 8 < 7 : this.i % 8 !== 0)) {
+                possibleMoves.push(this.i - 15 * dir);
             }
-            if(board.squares[this.i - 6*dir]?.color !== this.color && (dir == 1 ? this.i%8 < 6 : this.i%8 > 1)){
-                possibleMoves.push(this.i - 6*dir);
+            if (board.squares[this.i - 6 * dir]?.color !== this.color && (dir == 1 ? this.i % 8 < 6 : this.i % 8 > 1)) {
+                possibleMoves.push(this.i - 6 * dir);
             }
-            if(board.squares[this.i - 10*dir]?.color !== this.color && (dir == 1 ? this.i%8 > 1 : this.i%8 < 6)){
-                possibleMoves.push(this.i - 10*dir);
+            if (board.squares[this.i - 10 * dir]?.color !== this.color && (dir == 1 ? this.i % 8 > 1 : this.i % 8 < 6)) {
+                possibleMoves.push(this.i - 10 * dir);
             }
         }
         possibleMoves = possibleMoves.filter(e => (e <= 63 && e >= 0));
