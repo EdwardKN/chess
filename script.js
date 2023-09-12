@@ -205,7 +205,8 @@ class Square {
         this.piece = undefined;
         this.hover = false;
         this.size = 20;
-        this.moves = [-1]
+        this.moves = [-1];
+        this.lastWasFirstMoveAndMove2 = false;
 
         this.precomputedMoveData()
     }
@@ -223,7 +224,7 @@ class Square {
 
         c.font = "10px Arial";
         c.fillStyle = "black";
-        //c.fillText(this.i,this.x*this.size + (canvas.width-this.size*8)/2,this.y*this.size + (canvas.height-this.size*8)/2 + 20)
+        c.fillText(this.i, this.x * this.size + (canvas.width - this.size * 8) / 2, this.y * this.size + (canvas.height - this.size * 8) / 2 + 20)
 
     };
     update() {
@@ -304,6 +305,8 @@ class Piece extends Square {
             return;
         }
         if (!fake) {
+            this.lastWasFirstMoveAndMove2 = (Math.abs(this.i - i) > 8 && this.type == 0) ? this.firstMove : false;
+
             this.firstMove = false;
         }
         if (board.squares[i].type == 5) {
@@ -317,11 +320,21 @@ class Piece extends Square {
                 }
             }
         }
+        if (this.type == 0) {
+            console.log(Math.abs(this.i - 1) - 8, i)
+            if (board.squares[this.i - 1].lastWasFirstMoveAndMove2 && i == (Math.abs(this.i - 1) - 8)) {
+                board.squares[this.i - 1] = new Square(this.i - 1);
+            }
+            if (board.squares[this.i + 1].lastWasFirstMoveAndMove2 && i == (Math.abs(this.i + 1) - 8)) {
+                board.squares[this.i + 1] = new Square(this.i + 1);
+            }
+        }
         board.squares[i] = new Square(i);
         if (i < 8 && this.type == 0 || i > 55 && this.type == 0) {
             board.squares[i] = new Piece(i, 4, this.color, false)
         } else {
             board.squares[i] = new Piece(i, this.type, this.color, false)
+            board.squares[i].lastWasFirstMoveAndMove2 = this.lastWasFirstMoveAndMove2;
         }
         board.squares[this.i] = new Square(this.i);
         if (!fake) {
@@ -433,10 +446,10 @@ class Piece extends Square {
             }
         }
 
-        if (board.squares[this.i + 7 * dir]?.color !== this.color && board.squares[this.i + 7 * dir] instanceof Piece) {
+        if (board.squares[this.i + 7 * dir]?.color !== this.color && board.squares[this.i + 7 * dir] instanceof Piece || board.squares[this.i - 1 * dir]?.color !== this.color && board.squares[this.i - 1 * dir].lastWasFirstMoveAndMove2) {
             possibleMoves.push(this.i + 7 * dir);
         }
-        if (board.squares[this.i + 9 * dir]?.color !== this.color && board.squares[this.i + 9 * dir] instanceof Piece) {
+        if (board.squares[this.i + 9 * dir]?.color !== this.color && board.squares[this.i + 9 * dir] instanceof Piece || board.squares[this.i + 1 * dir]?.color !== this.color && board.squares[this.i + 1 * dir].lastWasFirstMoveAndMove2) {
             possibleMoves.push(this.i + 9 * dir);
         }
 
