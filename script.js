@@ -181,7 +181,7 @@ class Board {
     };
     update() {
         this.draw();
-        this.squares.forEach(e => e.update());
+        this.squares.forEach(e => e?.update());
     };
     async makeComputerMove() {
         await new Promise(e => setTimeout(e, 100));
@@ -217,26 +217,26 @@ class Board {
         this.squares[0] = new Piece(0, 1, "black")
         this.squares[7] = new Piece(7, 1, "black")
 
-        //this.squares[1] = new Piece(1, 2, "black")
-        //this.squares[6] = new Piece(6, 2, "black")
+        this.squares[1] = new Piece(1, 2, "black")
+        this.squares[6] = new Piece(6, 2, "black")
 
-        //this.squares[2] = new Piece(2, 3, "black")
-        //this.squares[5] = new Piece(5, 3, "black")
+        this.squares[2] = new Piece(2, 3, "black")
+        this.squares[5] = new Piece(5, 3, "black")
 
-        //this.squares[3] = new Piece(3, 4, "black")
+        this.squares[3] = new Piece(3, 4, "black")
 
         this.squares[4] = new Piece(4, 5, "black")
 
         this.squares[56] = new Piece(56, 1, "white")
         this.squares[63] = new Piece(63, 1, "white")
 
-        //this.squares[57] = new Piece(57, 2, "white")
-        //this.squares[62] = new Piece(62, 2, "white")
+        this.squares[57] = new Piece(57, 2, "white")
+        this.squares[62] = new Piece(62, 2, "white")
 
-        //this.squares[58] = new Piece(58, 3, "white")
-        //this.squares[61] = new Piece(61, 3, "white")
+        this.squares[58] = new Piece(58, 3, "white")
+        this.squares[61] = new Piece(61, 3, "white")
 
-        //this.squares[59] = new Piece(59, 4, "white")
+        this.squares[59] = new Piece(59, 4, "white")
 
         this.squares[60] = new Piece(60, 5, "white")
     }
@@ -394,11 +394,10 @@ class Piece extends Square {
             if (comp) {
                 if (colorToMove == "black" || bothComp) {
                     board.makeComputerMove();
-                }
-            }
-        }
-
-    }
+                };
+            };
+        };
+    };
     getMoves() {
         let moves = [];
         if (this.type == 1 || this.type == 3 || this.type == 4 || this.type == 5) {
@@ -453,13 +452,13 @@ class Piece extends Square {
                 })
                 if (!inCheck) {
                     legalMoves.push(moveToVerify);
-                }
+                };
                 if (removedPawn1) {
                     board.squares[piece.i - 1] = removedPawn1;
-                }
+                };
                 if (removedPawn2) {
-                    board.squares[piece.i + 1] = removedPawn1;
-                }
+                    board.squares[piece.i + 1] = removedPawn2;
+                };
                 board.squares[moveToVerify] = old;
                 board.squares[originalSpace] = oldPiece;
             })
@@ -500,7 +499,7 @@ class Piece extends Square {
                 if (board.squares[index]?.type == 1 && board.squares[index]?.firstMove) {
                     possibleMoves.push(this.i + 2 * dir);
                 } else if (board.squares[index] instanceof Piece) {
-                    index += dir * 100
+                    index += dir * Infinity;
                 }
             }
         }
