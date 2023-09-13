@@ -178,13 +178,18 @@ class Board {
         this.squares.forEach(e => e.update());
     };
     async makeComputerMove() {
-        await new Promise(e => setTimeout(e, 100))
+        await new Promise(e => setTimeout(e, 100));
         let computerSquares = this.squares.filter(e => (e instanceof Piece && e.color == colorToMove));
         computerSquares.forEach(e => e.checkwin());
         computerSquares = computerSquares.filter(e => e.moves.length > 0);
-        let random = randomIntFromRange(0, computerSquares.length - 1);
-        computerSquares[random].placePiece(computerSquares[random].moves[randomIntFromRange(0, computerSquares[random].moves.length - 1)]);
-
+        let allMoves = [];
+        computerSquares.forEach(e => {
+            e.moves.forEach(g => {
+                allMoves.push({ to: g, from: e.i });
+            });
+        });
+        let random = randomIntFromRange(0, allMoves.length - 1);
+        board.squares[allMoves[random].from].placePiece(allMoves[random].to);
     }
     init() {
         this.squares = [];
