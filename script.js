@@ -95,18 +95,22 @@ var images = {
     white: ["whitePiece/WhitePawn", "whitePiece/WhiteRook", "whitePiece/WhiteKnight", "whitePiece/WhiteBishop", "whitePiece/WhiteQueen", "whitePiece/WhiteKing"],
 }
 function startLocal() {
-    start();
-    local = true;
+    if (!connection) {
+        start();
+        local = true;
+    }
 }
 
 function startComp() {
-    start();
-    local = true;
-    comp = true;
+    if (!connection) {
+        start();
+        local = true;
+        comp = true;
+    }
 }
 
 function startCompVsComp() {
-    if (!bothComp) {
+    if (!bothComp && !connection) {
         start();
         local = true;
         comp = true;

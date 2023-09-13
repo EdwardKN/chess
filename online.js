@@ -7,7 +7,21 @@ var connection
 
 peer.on('connection', x => {
     x.on('data', data => {
-        console.log(data)
+        if (data === 'DECLINE') {
+            alert("They declined!")
+            connection.close();
+            connection = undefined;
+            board = undefined;
+        }
+        if (data === 'DISCONNECT') {
+            alert("They disconnected!")
+            connection.close();
+            connection = undefined;
+            board = undefined;
+        }
+        if (data === 'ACCEPT') {
+            startOnlineGame(x.peer);
+        }
         if (data.colorToMove) {
             colorToMove = data.colorToMove
             board.squares.filter(x => x.color == colorToMove)[0].checkwin();
@@ -27,19 +41,42 @@ peer.on('connection', x => {
         }
     })
     x.on('open', () => {
-        console.log('open called from peer', x.peer)
-        if (!connection) connection = peer.connect(x.peer)
+        if (!connection) {
+            connection = peer.connect(x.peer);
 
-        if (peerId < x.peer) {
-            localPlayer = "white";
-        };
-        board = new Board();
-        board.init();
+            if (confirm(x.peer + " wants to connect to you! Do you Accept?")) {
+                startOnlineGame(x.peer);
+                setTimeout(() => {
+                    connection.send("ACCEPT")
+                }, 100);
+            } else {
+                setTimeout(() => {
+                    connection.send("DECLINE")
+                    connection.close();
+                    connection = undefined;
+                }, 100);
+            }
+        }
     });
 });
+function startOnlineGame(id) {
+    if (peerId < id) {
+        localPlayer = "white";
+    };
+    board = new Board();
+    board.init();
+}
+function disconnect() {
+    connection.send("DISCONNECT");
+    connection?.close();
+    connection = undefined;
+    board = undefined;
+}
 
 function connect() {
     const connectTo = document.getElementById('inputId').value
-    console.log('connecting to', connectTo)
-    if (!connection) connection = peer.connect(connectTo)
+    if (connectTo != peerId) {
+        console.log('connecting to', connectTo)
+        if (!connection) connection = peer.connect(connectTo)
+    }
 }
