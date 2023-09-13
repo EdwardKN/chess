@@ -106,14 +106,20 @@ function startComp() {
 }
 
 function startCompVsComp() {
-    start();
-    local = true;
-    comp = true;
-    bothComp = true;
-    board.makeComputerMove();
+    if (!bothComp) {
+        start();
+        local = true;
+        comp = true;
+        bothComp = true;
+        board.makeComputerMove();
+    }
 }
 
 function start() {
+    lastMove = {
+        from: undefined,
+        tyo: undefined
+    }
     localPlayer = "white";
     colorToMove = "white";
     movingPiece = undefined;
@@ -188,7 +194,11 @@ class Board {
                 allMoves.push({ to: g, from: e.i });
             });
         });
-        let random = randomIntFromRange(0, allMoves.length - 1);
+
+
+        let random = randomIntFromRange(0, allMoves.length - 1); // Figuring out what move to do
+
+
         board.squares[allMoves[random].from].placePiece(allMoves[random].to);
     }
     init() {
@@ -331,8 +341,8 @@ class Piece extends Square {
     }
     checkwin() {
         if (this.getLegalMoves() == 0) {
-            connection?.send({ winner: (this.color == "black" ? "Black" : "White") })
-            alert((this.color == "black" ? "Black" : "White") + ' Won!');
+            connection?.send({ winner: (this.color == "white" ? "Black" : "White") })
+            alert((this.color == "white" ? "Black" : "White") + ' Won!');
         };
     }
     async placePiece(i, fake) {
@@ -421,6 +431,18 @@ class Piece extends Square {
                 let oldPiece = piece;
                 board.squares[moveToVerify] = new Piece(moveToVerify, piece.type, piece.color, false);
                 board.squares[originalSpace] = new Square(originalSpace);
+                let removedPawn1 = undefined;
+                let removedPawn2 = undefined;
+                if (piece.type == 0) {
+                    if (board.squares[piece.i - 1]?.lastWasFirstMoveAndMove2 && moveToVerify == (Math.abs(piece.i - 1) - 8)) {
+                        removedPawn1 = board.squares[piece.i - 1];
+                        board.squares[piece.i - 1] = new Square(piece.i - 1);
+                    }
+                    if (board.squares[piece.i + 1]?.lastWasFirstMoveAndMove2 && moveToVerify == (Math.abs(piece.i + 1) - 8)) {
+                        removedPawn2 = board.squares[piece.i + 1];
+                        board.squares[piece.i + 1] = new Square(piece.i + 1);
+                    }
+                }
                 let inCheck = false;
 
                 board.squares.filter(g => (g?.color !== piece.color && g?.color)).forEach(opponent => {
@@ -432,9 +454,16 @@ class Piece extends Square {
                 if (!inCheck) {
                     legalMoves.push(moveToVerify);
                 }
+                if (removedPawn1) {
+                    board.squares[piece.i - 1] = removedPawn1;
+                }
+                if (removedPawn2) {
+                    board.squares[piece.i + 1] = removedPawn1;
+                }
                 board.squares[moveToVerify] = old;
                 board.squares[originalSpace] = oldPiece;
             })
+
             piece.moves = legalMoves;
             totalLegalMoves += piece.moves.length;
         })
@@ -480,7 +509,7 @@ class Piece extends Square {
         let possibleMoves = [];
         let dir = this.color == "black" ? 1 : -1;
         if (!(board.squares[this.i + 8 * dir] instanceof Piece)) {
-            if (this.firstMove) {
+            if (this.firstMove && !(board.squares[this.i + 16 * dir] instanceof Piece)) {
                 possibleMoves.push(this.i + 8 * dir);
                 possibleMoves.push(this.i + 16 * dir);
             } else {

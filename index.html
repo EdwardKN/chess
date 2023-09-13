@@ -16,10 +16,10 @@
     </style>
 </head>
 <body>
-    <input type="text" id="inputId" style="z-index:5; position: relative;">
-    <button onclick="connect()" style="z-index: 5; position: relative;">Connect</button>
-    <button onclick="startLocal()" style="z-index: 5; position: relative;">Local</button>
-    <button onclick="startComp()" style="z-index: 5; position: relative;">Robot</button>
+    <input type="text" id="inputId" style="z-index:5; position: relative;" placeholder="Id Of Other Player">
+    <button onclick="connect()" style="z-index: 5; position: relative;">Connect To Online Player</button>
+    <button onclick="startLocal()" style="z-index: 5; position: relative;">Player Vs Player</button>
+    <button onclick="startComp()" style="z-index: 5; position: relative;">Player vs Robot</button>
     <button onclick="startCompVsComp()" style="z-index: 5; position: relative;">Robot vs Robot</button>
     <p  id="thisId" style="z-index: 5; position: relative;">Id:</p>
     <script src="https://unpkg.com/peerjs@1.5.0/dist/peerjs.min.js"></script>
