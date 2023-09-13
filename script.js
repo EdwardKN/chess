@@ -217,26 +217,26 @@ class Board {
         this.squares[0] = new Piece(0, 1, "black")
         this.squares[7] = new Piece(7, 1, "black")
 
-        this.squares[1] = new Piece(1, 2, "black")
-        this.squares[6] = new Piece(6, 2, "black")
+        //this.squares[1] = new Piece(1, 2, "black")
+        //this.squares[6] = new Piece(6, 2, "black")
 
-        this.squares[2] = new Piece(2, 3, "black")
-        this.squares[5] = new Piece(5, 3, "black")
+        //this.squares[2] = new Piece(2, 3, "black")
+        //this.squares[5] = new Piece(5, 3, "black")
 
-        this.squares[3] = new Piece(3, 4, "black")
+        //this.squares[3] = new Piece(3, 4, "black")
 
         this.squares[4] = new Piece(4, 5, "black")
 
         this.squares[56] = new Piece(56, 1, "white")
         this.squares[63] = new Piece(63, 1, "white")
 
-        this.squares[57] = new Piece(57, 2, "white")
-        this.squares[62] = new Piece(62, 2, "white")
+        //this.squares[57] = new Piece(57, 2, "white")
+        //this.squares[62] = new Piece(62, 2, "white")
 
-        this.squares[58] = new Piece(58, 3, "white")
-        this.squares[61] = new Piece(61, 3, "white")
+        //this.squares[58] = new Piece(58, 3, "white")
+        //this.squares[61] = new Piece(61, 3, "white")
 
-        this.squares[59] = new Piece(59, 4, "white")
+        //this.squares[59] = new Piece(59, 4, "white")
 
         this.squares[60] = new Piece(60, 5, "white")
     }
@@ -362,7 +362,7 @@ class Piece extends Square {
         }
         if (this.type == 5 && Math.abs(this.i - i) == 2) {
             let dir = (i - this.i) / 2
-            for (let index = this.i; (dir == 1 ? (index < this.i + this.numSquaresToEdge[3] + 1) : (index >= this.i - this.numSquaresToEdge[3 + 1])); index += dir) {
+            for (let index = this.i; (dir == 1 ? (index < this.i + this.numSquaresToEdge[3] + 1) : (index >= this.i - this.numSquaresToEdge[2])); index += dir) {
                 if (board.squares[index].type == 1) {
                     board.squares[index].placePiece(i - dir, true);
                 }
@@ -495,7 +495,8 @@ class Piece extends Square {
     getCastlingMoves(possibleMoves) {
 
         for (let dir = -1; dir < 2; dir += 2) {
-            for (let index = this.i + 1 * dir; dir == 1 ? (index < this.i + this.numSquaresToEdge[3 + dir] * dir) : (index >= this.i + this.numSquaresToEdge[3 + dir] * dir); index += 1 * dir) {
+            let tmpDir = localPlayer == 'white' ? 0 : 1;
+            for (let index = this.i + 1 * dir; dir == 1 ? (index < this.i + this.numSquaresToEdge[3] + 1) : (index > this.i - this.numSquaresToEdge[2] - 1); index += 1 * dir) {
                 if (board.squares[index]?.type == 1 && board.squares[index]?.firstMove) {
                     possibleMoves.push(this.i + 2 * dir);
                 } else if (board.squares[index] instanceof Piece) {
@@ -545,23 +546,5 @@ class Piece extends Square {
         possibleMoves = possibleMoves.filter(e => (e <= 63 && e >= 0));
         return possibleMoves;
     };
-    tryCastling(i) {
-        if (this.firstMove && this.i == (i + 1) || this.firstMove && this.i == (i - 1)) {
-            let dir = i - this.i;
-            for (let index = this.i + 1 * dir; dir == 1 ? (index < this.i + this.numSquaresToEdge[3 + dir] * dir) : (index >= this.i + this.numSquaresToEdge[3 + dir] * dir); index += 1 * dir) {
-                if (board.squares[index] instanceof Piece) {
-                    if (board.squares[index].type == 1 && board.squares[index].firstMove) {
-                        board.squares[index].placePiece(this.i + 2 * dir, true);
-                        this.moves.push(this.i + 2 * dir);
-                        this.placePiece((this.i + 2 * dir));
-                    } else {
-                        this.placePiece(i);
-                    }
-                }
-            }
-        } else {
-            this.placePiece(i)
-        }
-    }
 };
 update();
