@@ -417,7 +417,7 @@ class Piece extends Square {
     }
     getLegalMoves() {
         let totalLegalMoves = 0;
-        board.squares.filter(g => (g.color === this.color && g.color)).forEach(piece => {
+        board.squares.filter(g => (g?.color === this?.color && g?.color)).forEach(piece => {
             let pseudoLegalMoves = piece.getMoves();
 
             let legalMoves = [];
@@ -447,7 +447,7 @@ class Piece extends Square {
 
                 board.squares.filter(g => (g?.color !== piece.color && g?.color)).forEach(opponent => {
                     opponent.moves = opponent.getMoves();
-                    if (opponent.moves.includes(board.squares.filter(g => (g.color == piece.color && g.type == 5))[0].i)) {
+                    if (opponent.moves.includes(board.squares.filter(g => (g?.color == piece?.color && g?.type == 5))[0].i)) {
                         inCheck = true;
                     }
                 })
