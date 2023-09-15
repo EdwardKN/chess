@@ -50,19 +50,18 @@ peer.on('connection', x => {
     x.on('open', () => {
         if (!connection) {
             connection = peer.connect(x.peer);
+            console.log(connection)
 
-            if (confirm(x.peer + " wants to connect to you! Do you Accept?")) {
-                startOnlineGame(x.peer);
-                setTimeout(() => {
+            connection.on('open', function (data) {
+                if (confirm(x.peer + " wants to connect to you! Do you Accept?")) {
+                    startOnlineGame(x.peer);
                     connection.send("ACCEPT")
-                }, 100);
-            } else {
-                setTimeout(() => {
+                } else {
                     connection.send("DECLINE")
                     connection.close();
                     connection = undefined;
-                }, 100);
-            }
+                }
+            })
         }
     });
 });
