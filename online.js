@@ -70,8 +70,7 @@ function startOnlineGame(id) {
     if (peerId < id) {
         localPlayer = "white";
     };
-    board = new Board();
-    board.init();
+    start();
 }
 function disconnect() {
     connection.send("DISCONNECT");

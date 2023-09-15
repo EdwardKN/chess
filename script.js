@@ -96,36 +96,38 @@ var images = {
 }
 function startLocal() {
     if (!connection) {
-        start();
-        local = true;
+        startLocalGame();
     }
 }
 
 function startComp() {
     if (!connection) {
-        start();
-        local = true;
+        startLocalGame();
         comp = true;
     }
 }
 
 function startCompVsComp() {
     if (!bothComp && !connection) {
-        start();
-        local = true;
+        startLocalGame();
         comp = true;
         bothComp = true;
         board.makeComputerMove();
     }
 }
+function startLocalGame() {
+    local = true;
+    localPlayer = "white";
+    colorToMove = "white";
+    start();
+}
 
 function start() {
+    document.getElementById("buttons").style.display = "none"
     lastMove = {
         from: undefined,
         tyo: undefined
     }
-    localPlayer = "white";
-    colorToMove = "white";
     movingPiece = undefined;
     board = new Board();
     board.init();
