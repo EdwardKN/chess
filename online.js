@@ -1,4 +1,11 @@
-const peerId = Math.floor(Math.random() * 900000 + 100000)
+var emptyString = "";
+var alphabet = "abcdefghijklmnopqrstuvwxyz";
+
+while (emptyString.length < 6) {
+    emptyString += alphabet[Math.floor(Math.random() * alphabet.length)];
+}
+
+const peerId = emptyString;
 
 document.getElementById("thisId").innerHTML = "Id:" + peerId;
 
