@@ -70,6 +70,8 @@ function startOnlineGame(id) {
     if (peerId < id) {
         localPlayer = "white";
     };
+    colorToMove = "white";
+    local = false;
     start();
 }
 function disconnect() {
