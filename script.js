@@ -143,7 +143,9 @@ function update() {
     c.font = "20px Arial";
     c.fillStyle = "black";
     c.textAlign = "center"
-    c.fillText(colorToMove == localPlayer ? (!local ? "Your turn" : "White's turn") : (!local ? "Opponent's turn" : "Black's turn"), canvas.width / 2, 20)
+    if (board) {
+        c.fillText(colorToMove == localPlayer ? (!local ? "Your turn" : "White's turn") : (!local ? "Opponent's turn" : "Black's turn"), canvas.width / 2, 20)
+    }
 
     movingPiece?.updateMoving();
 

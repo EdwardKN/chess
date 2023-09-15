@@ -8,13 +8,14 @@
 </head>
 <body>
     <div style="border: 5px solid black;" id="buttons">
+        <h1 style="text-align: center;">Chess</h1>
+         <p  id="thisId" style="z-index: 5; position: relative;">Id:</p>
         <input type="text" id="inputId" style="z-index:5; position: relative;" placeholder="Id Of Other Player">
         <button onclick="connect()" style="z-index: 5; position: relative;">Connect To Online Player</button>
         <button onclick="disconnect()" style="z-index: 5; position: relative;">Disconnect</button>
         <button onclick="startLocal()" style="z-index: 5; position: relative; display: block;">Player Vs Player</button>
         <button onclick="startComp()" style="z-index: 5; position: relative;">Player vs Robot</button>
         <button onclick="startCompVsComp()" style="z-index: 5; position: relative;">Robot vs Robot</button>
-        <p  id="thisId" style="z-index: 5; position: relative;">Id:</p>
     </div>
 
     <script src="https://unpkg.com/peerjs@1.5.0/dist/peerjs.min.js"></script>

@@ -7,7 +7,7 @@ while (emptyString.length < 6) {
 
 const peerId = emptyString;
 
-document.getElementById("thisId").innerHTML = "Id:" + peerId;
+document.getElementById("thisId").innerHTML = "Your Id: " + peerId;
 
 const peer = new Peer(peerId)
 var connection
