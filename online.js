@@ -9,7 +9,7 @@ const peerId = emptyString;
 
 document.getElementById("thisId").innerHTML = "Your Id: " + peerId;
 
-const peer = new Peer(peerId)
+const peer = new Peer(peerId, { debug: 1 })
 var connection
 
 peer.on('connection', x => {
@@ -66,6 +66,10 @@ peer.on('connection', x => {
         }
     });
 });
+
+peer.on('error', function (err) {
+    //throw Error(err.type)
+});
 function startOnlineGame(id) {
     if (peerId < id) {
         localPlayer = "white";
@@ -85,6 +89,6 @@ function connect() {
     const connectTo = document.getElementById('inputId').value
     if (connectTo != peerId) {
         console.log('connecting to', connectTo)
-        if (!connection) connection = peer.connect(connectTo)
+        connection = peer.connect(connectTo)
     }
 }
