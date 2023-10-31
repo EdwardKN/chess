@@ -53,7 +53,69 @@ var lastMove = {
 
 const directionOffsets = [-8, 8, -1, 1, -9, 9, -7, 7]
 
+const pieceValues = [100,500,320,330,900,20000];
 
+const piecePlacingValues = [
+    [
+        0,  0,  0,  0,  0,  0,  0,  0,
+        50, 50, 50, 50, 50, 50, 50, 50,
+        10, 10, 20, 30, 30, 20, 10, 10,
+         5,  5, 10, 25, 25, 10,  5,  5,
+         0,  0,  0, 20, 20,  0,  0,  0,
+         5, -5,-10,  0,  0,-10, -5,  5,
+         5, 10, 10,-20,-20, 10, 10,  5,
+         0,  0,  0,  0,  0,  0,  0,  0
+    ],
+    [
+        -50,-40,-30,-30,-30,-30,-40,-50,
+        -40,-20,  0,  0,  0,  0,-20,-40,
+        -30,  0, 10, 15, 15, 10,  0,-30,
+        -30,  5, 15, 20, 20, 15,  5,-30,
+        -30,  0, 15, 20, 20, 15,  0,-30,
+        -30,  5, 10, 15, 15, 10,  5,-30,
+        -40,-20,  0,  5,  5,  0,-20,-40,
+        -50,-40,-30,-30,-30,-30,-40,-50,
+    ],[
+        -20,-10,-10,-10,-10,-10,-10,-20,
+        -10,  0,  0,  0,  0,  0,  0,-10,
+        -10,  0,  5, 10, 10,  5,  0,-10,
+        -10,  5,  5, 10, 10,  5,  5,-10,
+        -10,  0, 10, 10, 10, 10,  0,-10,
+        -10, 10, 10, 10, 10, 10, 10,-10,
+        -10,  5,  0,  0,  0,  0,  5,-10,
+        -20,-10,-10,-10,-10,-10,-10,-20,
+    ],
+    [
+        0,  0,  0,  0,  0,  0,  0,  0,
+        5, 10, 10, 10, 10, 10, 10,  5,
+       -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,
+       -5,  0,  0,  0,  0,  0,  0, -5,
+        0,  0,  0,  5,  5,  0,  0,  0
+    ],
+    [
+        -20,-10,-10, -5, -5,-10,-10,-20,
+        -10,  0,  0,  0,  0,  0,  0,-10,
+        -10,  0,  5,  5,  5,  5,  0,-10,
+        -5,  0,  5,  5,  5,  5,  0, -5,
+        0,  0,  5,  5,  5,  5,  0, -5,
+        -10,  5,  5,  5,  5,  5,  0,-10,
+        -10,  0,  5,  0,  0,  0,  0,-10,
+        -20,-10,-10, -5, -5,-10,-10,-20
+    ],
+    [
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -30,-40,-40,-50,-50,-40,-40,-30,
+        -20,-30,-30,-40,-40,-30,-30,-20,
+        -10,-20,-20,-20,-20,-20,-20,-10,
+        20, 20,  0,  0,  0,  0, 20, 20,
+        20, 30, 10,  0,  0, 10, 30, 20
+    ]
+]
 
 function fixCanvas() {
     canvas.width = 1920 / 5;
@@ -126,7 +188,7 @@ function start() {
     document.getElementById("buttons").style.display = "none"
     lastMove = {
         from: undefined,
-        tyo: undefined
+        to: undefined
     }
     movingPiece = undefined;
     board = new Board();
@@ -157,6 +219,7 @@ function update() {
 async function init() {
     fixCanvas();
     await loadImages(images);
+    //startLocalGame()
 };
 
 
@@ -192,22 +255,92 @@ class Board {
         this.squares.forEach(e => e?.update());
     };
     async makeComputerMove() {
+        console.log("he")
+        let bestMove = this.search(2,-Infinity,Infinity,true);
+
         await new Promise(e => setTimeout(e, 100));
-        let computerSquares = this.squares.filter(e => (e instanceof Piece && e.color == colorToMove));
-        computerSquares.forEach(e => e.checkwin());
-        computerSquares = computerSquares.filter(e => e.moves.length > 0);
+        board.squares[bestMove.from].getLegalMoves();
+
+        board.squares[bestMove.from].placePiece(bestMove.to)
+        await new Promise(e => setTimeout(e, 100));
+
+    }
+    evaluate(){
+        if(board.squares.filter(x => (x.color == "white"))[0].checkwin() == "mate"){return 100000000}
+        if(board.squares.filter(x => (x.color == "black"))[0].checkwin() == "mate"){return -100000000}
+        if(board.squares.filter(x => (x.color == "black")).length == 1 && board.squares.filter(x => (x.color == "white")).length == 1){return 0}
+
+        let score = 0;
+        board.squares.filter(x => (x.color == "white")).map(e => score += e.value)
+        board.squares.filter(x => (x.color == "black")).map(e => score -= e.value)
+        board.squares.filter(x => (x.color == "white")).forEach(e => (score += piecePlacingValues[e.type][e.i]))
+        board.squares.filter(x => (x.color == "black")).forEach(e => (score -= piecePlacingValues[e.type][63-e.i]))
+
+        let perspective = (colorToMove == "white" ? 1 : -1)
+
+        return score * perspective;
+    }
+    getAllMovesForColor(color){
+        let squareWithColor = this.squares.filter(e => (e instanceof Piece && e.color == color));
+        squareWithColor = squareWithColor.filter(e => e.moves.length > 0);
         let allMoves = [];
-        computerSquares.forEach(e => {
+        squareWithColor.forEach(e => {
+            e.getLegalMoves()
+
             e.moves.forEach(g => {
                 allMoves.push({ to: g, from: e.i });
             });
         });
+        return allMoves;
+    }
+    search(depth,alpha,beta,getMove){
+        let bestMove;
+        if(depth == 0){
+            return this.evaluate();
+        }
+        let moves = this.orderMoves(this.getAllMovesForColor(colorToMove));
 
+        if(moves.length == 0){
+            return 0;
+        }
+        for(let i = 0; i < moves.length; i++){
+            let move = moves[i];
+            let squares = deepCopy(board.squares);
+            let tmplastMove = deepCopyObject(lastMove);
+            let oldTurn = colorToMove;
+            board.squares[move.from].placePiece(move.to,false,true);
 
-        let random = randomIntFromRange(0, allMoves.length - 1); // Figuring out what move to do
+            let val = -this.search(depth-1,-beta,-alpha,false);   
+            
+            squares.forEach((e,i) =>{
+                if(e.type !== undefined){
+                    board.squares[i] = new Piece(i,e.type,e.color,(e.firstMove ? undefined : false));
+                }else{
+                    board.squares[i] = new Square(i);
+                }
+            })
+            colorToMove = oldTurn;
+            lastMove = tmplastMove;
+            
+            if(val >= beta){
+                return beta;
+            }
+            if(alpha < val){
+                alpha = Math.max(val,alpha)
+                bestMove = move;
+            }
+        }
+        return (getMove ? bestMove : alpha);
+    }
+    orderMoves(moves){
+        moves.forEach(move => {
+            move.sorting = 0;
 
-
-        board.squares[allMoves[random].from].placePiece(allMoves[random].to);
+            if(board.squares[move.to] instanceof Piece){
+                move.sorting = 10 * pieceValues[board.squares[move.to].type] - pieceValues[board.squares[move.from].type];
+            }
+        })
+        return moves.sort((a,b) => b.sorting - a.sorting);
     }
     init() {
         this.squares = [];
@@ -319,6 +452,7 @@ class Piece extends Square {
         this.color = color;
         this.type = type;
         this.firstMove = firstMove == undefined ? true : false;
+        this.value = pieceValues[this.type]
     };
     drawPiece() {
         if (movingPiece == this) return;
@@ -349,11 +483,10 @@ class Piece extends Square {
     }
     checkwin() {
         if (this.getLegalMoves() == 0) {
-            connection?.send({ winner: (this.color == "white" ? "Black" : "White") })
-            alert((this.color == "white" ? "Black" : "White") + ' Won!');
+            return "mate";
         };
     }
-    async placePiece(i, fake) {
+    async placePiece(i, fake,fake2) {
         if (i == this.i) {
             movingPiece = undefined;
         }
@@ -398,10 +531,15 @@ class Piece extends Square {
             lastMove.to = i;
             connection?.send({ colorToMove: colorToMove, moveFrom: this.i, moveTo: [i, (i < 8 && this.type == 0 || i > 55 && this.type == 0) ? 4 : this.type, this.color, false], lastMove: lastMove })
             movingPiece = undefined;
-            board.squares.filter(x => (x.color == colorToMove))[0].checkwin();
+            if(board.squares.filter(x => (x.color == colorToMove))[0].checkwin() == "mate"){
+                connection?.send({ winner: (this.color == "white" ? "Black" : "White") })
+                alert((this.color == "white" ? "Black" : "White") + ' Won!');
+            };
             if (comp) {
                 if (colorToMove == "black" || bothComp) {
-                    board.makeComputerMove();
+                    if(!fake2){
+                        board.makeComputerMove();
+                    }
                 };
             };
         };
@@ -555,3 +693,35 @@ class Piece extends Square {
     };
 };
 update();
+
+
+const deepCopy = (arr) => {
+    let copy = [];
+    arr.forEach(elem => {
+      if(Array.isArray(elem)){
+        copy.push(deepCopy(elem))
+      }else{
+        if (typeof elem === 'object') {
+          copy.push(deepCopyObject(elem))
+      } else {
+          copy.push(elem)
+        }
+      }
+    })
+    return copy;
+  }
+  const deepCopyObject = (obj) => {
+    let tempObj = {};
+    for (let [key, value] of Object.entries(obj)) {
+      if (Array.isArray(value)) {
+        tempObj[key] = deepCopy(value);
+      } else {
+        if (typeof value === 'object') {
+          tempObj[key] = deepCopyObject(value);
+        } else {
+          tempObj[key] = value
+        }
+      }
+    }
+    return tempObj;
+  }
